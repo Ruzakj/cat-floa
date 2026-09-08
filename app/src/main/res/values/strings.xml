@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">RIC Pet</string>
     <string name="channel_name">RIC Pet berjalan</string>
+    <string name="accessibility_desc">Opsional: membuat RIC Pet bereaksi saat pengguna mengetik atau menggulir. Layanan hanya menggunakan jenis event dan tidak membaca, menyimpan, atau mengirim isi teks.</string>
 </resources>
