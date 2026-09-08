@@ -19,7 +19,7 @@
             android:name=".PetAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="true"
-            android:label="RIC Pet typing & scroll reactions">
+            android:label="RIC Pet typing &amp; scroll reactions">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService"/>
             </intent-filter>
