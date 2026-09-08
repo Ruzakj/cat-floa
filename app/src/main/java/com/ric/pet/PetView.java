@@ -43,7 +43,6 @@ public class PetView extends View {
             case SCROLL: drawScrolling(c,u); break;
             case YAWN: drawYawn(c,u); break;
             case KNEAD: drawKnead(c,u); break;
-            case STRETCH: drawStretch(c,u); break;
             default: drawStanding(c,u); break;
         }
         c.restore(); postInvalidateDelayed(state==State.RUN||state==State.ZOOMIES?70:110);
@@ -85,9 +84,9 @@ public class PetView extends View {
     private void drawTail(Canvas c,float u,int f){int o=outline(),b=body();float y=(f%2==0?8:7);rect(c,12,y,14,y+2,u,o);rect(c,13,y-2,15,y+1,u,o);rect(c,12.5f,y+.2f,13.7f,y+1.2f,u,b);rect(c,13.5f,y-1.4f,14.5f,y+.2f,u,b);}
 
     private void drawSit(Canvas c,float u){int f=frame(350);int o=outline(),b=body();float bob=f%2==0?0:.12f;c.save();c.translate(0,bob*u);rect(c,5,4,11,10,u,o);rect(c,4,3,6,6,u,o);rect(c,10,3,12,6,u,o);rect(c,6,4,10,10,u,b);ears(c,u);markings(c,u);face(c,u,false);rect(c,5,9,12,14,u,o);rect(c,6,9,11,13,u,b);rect(c,5,12,8,14,u,white());rect(c,9,12,12,14,u,white());drawTail(c,u,f);c.restore();}
-    private void drawSleep(Canvas c,float u){int f=frame(600);float y=f%2==0?0:.2f;int o=outline(),b=body();c.save();c.translate(0,y*u);rect(c,3,7,13,13,u,o);rect(c,4,7,12,12,u,b);rect(c,4,6,8,10,u,o);rect(c,5,6,8,9,u,b);rect(c,5,8,6.5f,8.4f,u,o);rect(c,7,8,8.5f,8.4f,u,o);markings(c,u);rect(c,9,10,12,12,u,white());c.restore();p.setColor(outline());p.setTextSize(2*u);c.drawText(f%3==0?"z":"Z",12*u,5*u,p);}
+    private void drawSleep(Canvas c,float u){int f=frame(600);float y=f%2==0?0:.2f;int o=outline(),b=body();c.save();c.translate(0,y*u);rect(c,3,7,13,13,u,o);rect(c,4,7,12,12,u,b);rect(c,4,6,8,10,u,o);rect(c,5,6,8,9,u,b);rect(c,5,8,6.5f,8.4f,u,o);rect(c,7,8,8.5f,8.4f,u,o);rect(c,9,10,12,12,u,white());c.restore();p.setColor(outline());p.setTextSize(2*u);c.drawText(f%3==0?"z":"Z",12*u,5*u,p);}
     private void drawGroom(Canvas c,float u){drawSit(c,u);int f=frame(180);rect(c,10.5f,f%2==0?6:7.5f,12.5f,f%2==0?8:9.5f,u,white());pixel(c,10,8.3f,u,pink());}
-    private void drawStretch(Canvas c,float u){int f=frame(220);int o=outline(),b=body();float d=f%2==0?0:.5f;rect(c,3,7,12,12,u,o);rect(c,4,7,11,11,u,b);rect(c,2,6,6,10,u,o);rect(c,3,6,6,9,u,b);ears(c,u);face(c,u,true);rect(c,1,11,6,13+d,u,o);rect(c,5,11,10,13+d,u,o);rect(c,2,11,6,12+d,u,white());rect(c,6,11,10,12+d,u,white());drawTail(c,u,f);}
+    private void drawStretch(Canvas c,float u){int f=frame(220);int o=outline(),b=body();float d=f%2==0?0:.5f;rect(c,3,7,12,12,u,o);rect(c,4,7,11,11,u,b);rect(c,2,6,6,10,u,o);rect(c,3,6,6,9,u,b);face(c,u,true);rect(c,1,11,6,13+d,u,o);rect(c,5,11,10,13+d,u,o);rect(c,2,11,6,12+d,u,white());rect(c,6,11,10,12+d,u,white());drawTail(c,u,f);}
     private void drawScratch(Canvas c,float u){drawSit(c,u);int f=frame(130);rect(c,11,f%2==0?5:7,13,f%2==0?7:9,u,outline());rect(c,11.3f,f%2==0?5.2f:7.2f,12.7f,f%2==0?6.6f:8.6f,u,white());}
     private void drawPlay(Canvas c,float u){drawStanding(c,u);int f=frame(150);float bx=f%2==0?13:11.5f,by=f%2==0?11:9.5f;p.setColor(Color.rgb(219,92,105));c.drawCircle(bx*u,by*u,u,p);p.setStrokeWidth(Math.max(1,u*.25f));c.drawLine(11*u,8*u,bx*u,by*u,p);}
     private void drawPounce(Canvas c,float u){int f=frame(100);c.save();c.translate(0,(f%4==1||f%4==2)?-1.2f*u:0);drawStretch(c,u);c.restore();}
