@@ -4,38 +4,15 @@ import android.content.Context;import android.graphics.*;import android.os.Syste
 
 public class PetView extends View{
  public enum State{IDLE,WALK,RUN,SIT,SLEEP,HAPPY,GROOM,STRETCH,SCRATCH,LOOK_AROUND,PLAY,POUNCE,EAT,DRINK,ZOOMIES,CLIMB,HANG,FALL,ATTENTION,YAWN,KNEAD,WAKE,TYPING,SCROLL,MEDIA_WATCH,MUSIC}
- private final Paint p=new Paint();private State state=State.IDLE;private long since=SystemClock.uptimeMillis();private boolean flip;private String cat;
+ private final Paint p=new Paint();private final FelineRenderer feline=new FelineRenderer();private State state=State.IDLE;private long since=SystemClock.uptimeMillis();private boolean flip;private String cat;
  public PetView(Context c){super(c);p.setAntiAlias(false);cat=PetPreferences.cat(c);setLayerType(View.LAYER_TYPE_SOFTWARE,null);}public State getState(){return state;}public void setState(State s){if(state!=s){state=s;since=SystemClock.uptimeMillis();}invalidate();}public void setFlip(boolean f){flip=f;invalidate();}public void setFacing(int d){setFlip(d<0);}public void refreshCharacter(){cat=PetPreferences.cat(getContext());invalidate();}
  private long age(){return SystemClock.uptimeMillis()-since;}private int frame(long ms){return(int)(age()/ms);}private float u(){return Math.max(1f,Math.min(getWidth(),getHeight())/16f);}private boolean humanoid(){return "YUKI".equals(cat)||"REN".equals(cat);}private void rect(Canvas c,float l,float t,float r,float b,float u,int color){p.setStyle(Paint.Style.FILL);p.setColor(color);c.drawRect(l*u,t*u,r*u,b*u,p);}private void px(Canvas c,float x,float y,float u,int color){rect(c,x,y,x+1,y+1,u,color);}
- @Override protected void onDraw(Canvas c){super.onDraw(c);float u=u();c.save();if(flip)c.scale(-1,1,getWidth()/2f,getHeight()/2f);if(humanoid())drawNeko(c,u);else drawCat(c,u,"TORA".equals(cat));c.restore();postInvalidateDelayed(state==State.RUN||state==State.ZOOMIES||state==State.MUSIC?70:110);}
+ @Override protected void onDraw(Canvas c){super.onDraw(c);float u=u();c.save();if(flip)c.scale(-1,1,getWidth()/2f,getHeight()/2f);if(humanoid())drawNeko(c,u);else{feline.draw(c,getWidth(),getHeight(),"TORA".equals(cat),state,age());drawCatOverlay(c,u);}c.restore();postInvalidateDelayed(state==State.RUN||state==State.ZOOMIES||state==State.MUSIC?70:110);}
 
  private void drawNeko(Canvas c,float u){int f=frame(140);boolean y="YUKI".equals(cat);float bob=(state==State.WALK||state==State.RUN||state==State.MUSIC)?(f%2)*.25f:0;c.save();c.translate(0,bob*u);int hair=y?Color.rgb(205,178,236):Color.rgb(247,180,202),hd=y?Color.rgb(157,128,194):Color.rgb(212,132,164),skin=Color.rgb(253,222,207),cloth=y?Color.rgb(245,177,211):Color.rgb(178,224,214),dark=Color.rgb(66,54,67);rect(c,5,2,11,7,u,hair);rect(c,4,1,6,4,u,hd);rect(c,10,1,12,4,u,hd);rect(c,6,3,10,7,u,skin);rect(c,6,4,7,5,u,dark);rect(c,9,4,10,5,u,dark);px(c,5.4f,5.4f,u,Color.rgb(244,148,167));px(c,10.6f,5.4f,u,Color.rgb(244,148,167));rect(c,5,7,11,12,u,cloth);rect(c,4,11,12,13,u,cloth);int st=(state==State.WALK||state==State.RUN)?f%2:0;rect(c,5,13+st*.4f,7,15,u,dark);rect(c,9,13+(1-st)*.4f,11,15,u,dark);rect(c,11.5f,8,14,9.5f,u,hd);if(state==State.SLEEP){rect(c,4,10,12,14,u,cloth);p.setColor(dark);p.setTextSize(2*u);c.drawText("Z",12*u,5*u,p);}extras(c,u,f,skin,dark);c.restore();}
 
- private void drawCat(Canvas c,float u,boolean tora){
-  int f=frame(state==State.RUN?85:150);float bob=(state==State.WALK||state==State.RUN||state==State.ZOOMIES||state==State.MUSIC)?(f%2)*.18f:0;c.save();c.translate(0,bob*u);
-  int fur=tora?Color.rgb(205,125,52):Color.rgb(31,32,37),outline=Color.WHITE,eye=tora?Color.rgb(255,239,168):Color.WHITE,dark=tora?Color.rgb(105,61,38):Color.rgb(16,17,20);
-  // CAT SILHOUETTE: wide head, two pointed ears, short neck, squat body, tiny paws, curled tail.
-  // white stepped outline
-  int[][] O={{4,3,5,2},{5,2,6,1},{6,1,7,3},{7,3,10,3},{10,3,11,1},{11,1,12,2},{12,2,13,3},{3,4,14,9},{4,9,13,13},{5,13,12,14},{12,10,14,13},{14,9,15,12},{15,8,16,11}};for(int[]r:O)rect(c,r[0],r[1],r[2],r[3],u,outline);
-  // fill head with obvious cat cheeks
-  rect(c,4,4,13,8.7f,u,fur);rect(c,5,3,7,5,u,fur);rect(c,10,3,12,5,u,fur);rect(c,4.5f,7.5f,12.5f,9.5f,u,fur);
-  // pointed ears with inner ear
-  Path le=new Path();le.moveTo(4.5f*u,4*u);le.lineTo(6*u,1.8f*u);le.lineTo(7*u,4*u);le.close();p.setColor(fur);c.drawPath(le,p);Path re=new Path();re.moveTo(10*u,4*u);re.lineTo(11*u,1.8f*u);re.lineTo(12.5f*u,4*u);re.close();c.drawPath(re,p);p.setColor(Color.rgb(238,158,171));Path li=new Path();li.moveTo(5.2f*u,3.7f*u);li.lineTo(6*u,2.6f*u);li.lineTo(6.5f*u,3.8f*u);li.close();c.drawPath(li,p);Path ri=new Path();ri.moveTo(10.5f*u,3.8f*u);ri.lineTo(11*u,2.6f*u);ri.lineTo(11.8f*u,3.7f*u);ri.close();c.drawPath(ri,p);
-  // eyes + muzzle + nose: immediately cat-like
-  rect(c,5.3f,5.3f,6.8f,6.0f,u,eye);rect(c,9.8f,5.3f,11.3f,6.0f,u,eye);rect(c,6.0f,6.7f,10.6f,8.1f,u,tora?Color.rgb(239,188,126):Color.rgb(54,55,61));px(c,8.0f,6.8f,u,Color.rgb(239,145,153));rect(c,7.1f,7.6f,8.0f,7.9f,u,outline);rect(c,8.6f,7.6f,9.5f,7.9f,u,outline);
-  // whiskers, thin and horizontal like the reference
-  rect(c,1.1f,6.2f,4.6f,6.55f,u,outline);rect(c,1.4f,7.0f,4.7f,7.35f,u,outline);rect(c,12.1f,6.2f,15.5f,6.55f,u,outline);rect(c,12.0f,7.0f,15.2f,7.35f,u,outline);
-  // squat body narrower than head + chest
-  rect(c,5,9,12,12.8f,u,fur);rect(c,4.5f,10,12.5f,12,u,fur);if(tora){rect(c,6,9,7,11,u,dark);rect(c,8,9,9,10.5f,u,dark);rect(c,10,9,11,11,u,dark);}else rect(c,6.5f,9.2f,10.5f,11.5f,u,Color.rgb(40,41,47));
-  // tiny paws
-  int step=(state==State.WALK||state==State.RUN||state==State.ZOOMIES)?f%2:0;rect(c,5.2f,12.2f+step*.25f,7.0f,13.5f+step*.25f,u,outline);rect(c,9.8f,12.2f+(1-step)*.25f,11.6f,13.5f+(1-step)*.25f,u,outline);rect(c,5.5f,12.1f+step*.25f,6.8f,13.0f+step*.25f,u,fur);rect(c,10.0f,12.1f+(1-step)*.25f,11.3f,13.0f+(1-step)*.25f,u,fur);
-  // curled tail attached to body
-  p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(1.55f*u);p.setStrokeCap(Paint.Cap.SQUARE);p.setColor(outline);c.drawArc(10.7f*u,7.8f*u,15.3f*u,13.6f*u,-75,255,false,p);p.setStrokeWidth(.95f*u);p.setColor(fur);c.drawArc(10.8f*u,7.9f*u,15.2f*u,13.5f*u,-75,255,false,p);p.setStyle(Paint.Style.FILL);
-  if(state==State.SLEEP){rect(c,5,9.5f,12,12.5f,u,fur);p.setColor(outline);p.setTextSize(2*u);c.drawText("Z",12*u,5*u,p);}if(state==State.HAPPY||state==State.ATTENTION){px(c,3,3,u,Color.rgb(244,112,150));px(c,13,3,u,Color.rgb(244,112,150));}
-  extras(c,u,f,fur,outline);c.restore();
- }
-
+ private void drawCatOverlay(Canvas c,float u){int f=frame(130);if(state==State.TYPING){rect(c,3,11.7f,13,14,u,Color.rgb(55,58,68));for(int x=4;x<12;x+=2)px(c,x,12.4f+(f+x)%2*.22f,u,Color.WHITE);}if(state==State.SCROLL){p.setAntiAlias(true);p.setColor(Color.WHITE);p.setTextSize(2*u);c.drawText("↓",13*u,(6+f%3)*u,p);p.setAntiAlias(false);}if(state==State.MEDIA_WATCH)movie(c,u,f,Color.LTGRAY);if(state==State.MUSIC)music(c,u,f,Color.DKGRAY);}
  private void extras(Canvas c,float u,int f,int hand,int dark){if(state==State.TYPING){rect(c,3,11.5f,13,14,u,Color.rgb(55,58,68));for(int x=4;x<12;x+=2)px(c,x,12.2f+(f+x)%2*.25f,u,Color.WHITE);}if(state==State.SCROLL){p.setColor(Color.WHITE);p.setTextSize(2*u);c.drawText("↓",13*u,(6+f%3)*u,p);}if(state==State.MEDIA_WATCH)movie(c,u,f,hand);if(state==State.MUSIC)music(c,u,f,dark);}
  private void movie(Canvas c,float u,int f,int hand){boolean cola=(f/8)%2==1;if(cola){rect(c,11,9,14,14,u,Color.rgb(190,35,48));rect(c,11,9,14,10,u,Color.WHITE);p.setColor(Color.WHITE);p.setStrokeWidth(.3f*u);c.drawLine(13*u,9*u,14*u,7*u,p);}else{rect(c,10.5f,10,14.5f,14,u,Color.rgb(210,45,60));p.setColor(Color.rgb(250,225,151));for(int i=0;i<5;i++)c.drawCircle((11+i*.7f)*u,(9.7f-(i%2)*.4f)*u,.4f*u,p);}}
- private void music(Canvas c,float u,int f,int dark){p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(.6f*u);p.setColor(Color.rgb(70,72,85));c.drawArc(4*u,2*u,12*u,9*u,190,160,false,p);p.setStyle(Paint.Style.FILL);rect(c,3.5f,5,5,8,u,Color.rgb(70,72,85));rect(c,11,5,12.5f,8,u,Color.rgb(70,72,85));p.setColor(Color.WHITE);p.setTextSize(2*u);c.drawText(f%2==0?"♪":"♫",13*u,4*u,p);}
+ private void music(Canvas c,float u,int f,int dark){p.setAntiAlias(true);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(.6f*u);p.setColor(Color.rgb(70,72,85));c.drawArc(4*u,2*u,12*u,9*u,190,160,false,p);p.setStyle(Paint.Style.FILL);rect(c,3.5f,5,5,8,u,Color.rgb(70,72,85));rect(c,11,5,12.5f,8,u,Color.rgb(70,72,85));p.setColor(Color.WHITE);p.setTextSize(2*u);c.drawText(f%2==0?"♪":"♫",13*u,4*u,p);p.setAntiAlias(false);}
 }
