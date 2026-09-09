@@ -12,4 +12,8 @@ public final class PetPreferences {
     public static boolean autoStart(Context c){return p(c).getBoolean("auto_start",false);} public static void autoStart(Context c,boolean v){p(c).edit().putBoolean("auto_start",v).apply();}
     public static String cat(Context c){String v=p(c).getString("cat","YUKI"); if("MOCHI".equals(v)||"MIKAN".equals(v)||"KURO".equals(v)||"AOI".equals(v))return "YUKI"; return v;}
     public static void cat(Context c,String v){p(c).edit().putString("cat",v).apply();}
+    private static String soundKey(String cat){return "tap_sound_"+(cat==null?"YUKI":cat);}
+    public static String customTapSound(Context c,String cat){return p(c).getString(soundKey(cat),"");}
+    public static void customTapSound(Context c,String cat,String uri){p(c).edit().putString(soundKey(cat),uri==null?"":uri).apply();}
+    public static void clearCustomTapSound(Context c,String cat){p(c).edit().remove(soundKey(cat)).apply();}
 }
