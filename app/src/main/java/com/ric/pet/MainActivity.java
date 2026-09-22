@@ -51,6 +51,7 @@ public class MainActivity extends Activity {
         root.addView(header);
 
         status = chip("");
+        status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
         root.addView(status, wrapParams(dp(8)));
 
         root.addView(sectionTitle("Character"));
@@ -63,6 +64,7 @@ public class MainActivity extends Activity {
         previewParams.topMargin = dp(8);
         previewBox.setLayoutParams(previewParams);
         previewBox.setBackground(round(INPUT, BORDER, 20, 1));
+        previewBox.setContentDescription("Animated character preview");
         preview = new PetView(this);
         previewBox.addView(preview, new FrameLayout.LayoutParams(-1, -1));
         previewCard.addView(previewBox);
@@ -74,20 +76,22 @@ public class MainActivity extends Activity {
         for (int i = 0; i < a.length; i++) {
             final int n = i;
             Button x = smallButton(a[i], v -> preview.setState(st[n]));
-            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(dp(70), dp(38));
+            x.setContentDescription("Preview " + a[i].toLowerCase() + " animation");
+            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(dp(76), dp(48));
             p.setMargins(0, dp(10), dp(6), 0);
             actions.addView(x, p);
         }
         HorizontalScrollView hs = new HorizontalScrollView(this);
         hs.setHorizontalScrollBarEnabled(false);
         hs.addView(actions);
-        previewCard.addView(hs, new LinearLayout.LayoutParams(-1, dp(52)));
+        previewCard.addView(hs, new LinearLayout.LayoutParams(-1, dp(62)));
         root.addView(previewCard);
 
         root.addView(sectionTitle("Character selection"));
         Spinner sp = new Spinner(this);
         sp.setBackground(round(INPUT, BORDER, 20, 1));
         sp.setPadding(dp(14), 0, dp(14), 0);
+        sp.setContentDescription("Select pet character");
         sp.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, labels));
         String cur = PetPreferences.cat(this);
         for (int i = 0; i < ids.length; i++) if (ids[i].equals(cur)) sp.setSelection(i);
@@ -105,6 +109,7 @@ public class MainActivity extends Activity {
         root.addView(sectionTitle("Sound"));
         LinearLayout soundCard = card();
         soundLabel = text("", 12, MUTED, Gravity.START);
+        soundLabel.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
         soundCard.addView(soundLabel);
         soundCard.addView(button("Choose custom sound", v -> pickSound()));
         LinearLayout soundBtns = new LinearLayout(this);
@@ -115,8 +120,8 @@ public class MainActivity extends Activity {
             refreshSoundLabel();
             Toast.makeText(this, "Suara kembali ke default", Toast.LENGTH_SHORT).show();
         });
-        soundBtns.addView(test, new LinearLayout.LayoutParams(0, dp(42), 1));
-        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, dp(42), 1); rp.leftMargin = dp(8);
+        soundBtns.addView(test, new LinearLayout.LayoutParams(0, dp(48), 1));
+        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, dp(48), 1); rp.leftMargin = dp(8);
         soundBtns.addView(reset, rp);
         soundCard.addView(soundBtns);
         soundCard.addView(text("MP3, OGG, WAV, M4A dan format audio lain didukung. Pengaturan disimpan per karakter.", 11, MUTED, Gravity.START));
@@ -138,6 +143,7 @@ public class MainActivity extends Activity {
         SeekBar size = new SeekBar(this);
         size.setMax(224);
         size.setProgress(PetPreferences.size(this) - 96);
+        size.setContentDescription("Pet size");
         settingCard.addView(size);
         size.setOnSeekBarChangeListener(listener(v -> { PetPreferences.size(this, v + 96); refreshLabels(); }));
         speedLabel = text("", 13, TEXT, Gravity.START);
@@ -145,11 +151,13 @@ public class MainActivity extends Activity {
         SeekBar speed = new SeekBar(this);
         speed.setMax(150);
         speed.setProgress(PetPreferences.speed(this) - 50);
+        speed.setContentDescription("Movement speed");
         settingCard.addView(speed);
         speed.setOnSeekBarChangeListener(listener(v -> { PetPreferences.speed(this, v + 50); refreshLabels(); }));
         CheckBox boot = new CheckBox(this);
         boot.setText("Start automatically after reboot");
         boot.setTextColor(TEXT);
+        boot.setMinHeight(dp(48));
         boot.setChecked(PetPreferences.autoStart(this));
         boot.setOnCheckedChangeListener((x, c) -> PetPreferences.autoStart(this, c));
         settingCard.addView(boot);
@@ -183,6 +191,7 @@ public class MainActivity extends Activity {
     private TextView chip(String s) {
         TextView t = text(s, 12, TEXT, Gravity.CENTER);
         t.setPadding(dp(12), dp(7), dp(12), dp(7));
+        t.setMinHeight(dp(36));
         t.setBackground(round(INPUT, BORDER, 20, 1));
         return t;
     }
@@ -197,7 +206,7 @@ public class MainActivity extends Activity {
         b.setPadding(dp(14), 0, dp(14), 0);
         b.setBackground(round(BUTTON, BORDER, 20, 1));
         b.setOnClickListener(c::go);
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, dp(48));
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, dp(52));
         p.topMargin = dp(8);
         b.setLayoutParams(p);
         return b;
@@ -210,7 +219,7 @@ public class MainActivity extends Activity {
         b.setTextSize(11);
         b.setTextColor(TEXT);
         b.setPadding(dp(10), 0, dp(10), 0);
-        b.setMinWidth(0); b.setMinHeight(0);
+        b.setMinWidth(0); b.setMinHeight(dp(48));
         b.setBackground(round(BUTTON, BORDER, 18, 1));
         b.setOnClickListener(c::go);
         return b;
@@ -283,10 +292,18 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 26) startForegroundService(i); else startService(i);
         refresh();
     }
-    private void refresh() { status.setText(Settings.canDrawOverlays(this) ? "Overlay · Active" : "Overlay · Permission needed"); }
+    private void refresh() {
+        boolean allowed = Settings.canDrawOverlays(this);
+        status.setText(allowed ? "Overlay · Ready" : "Overlay · Permission needed");
+        status.setContentDescription(allowed ? "Overlay permission granted. RIC Pet is ready to start." : "Overlay permission required before RIC Pet can start.");
+    }
     private void refreshLabels() {
-        sizeLabel.setText("Pet size  ·  " + PetPreferences.size(this) + " dp");
-        speedLabel.setText("Movement speed  ·  " + PetPreferences.speed(this) + "%");
+        int petSize = PetPreferences.size(this);
+        int petSpeed = PetPreferences.speed(this);
+        sizeLabel.setText("Pet size  ·  " + petSize + " dp");
+        sizeLabel.setContentDescription("Pet size " + petSize + " dp");
+        speedLabel.setText("Movement speed  ·  " + petSpeed + "%");
+        speedLabel.setContentDescription("Movement speed " + petSpeed + " percent");
     }
     @Override protected void onResume() { super.onResume(); if (status != null) refresh(); }
     private int dp(int v) { return (int) (v * getResources().getDisplayMetrics().density + .5f); }
