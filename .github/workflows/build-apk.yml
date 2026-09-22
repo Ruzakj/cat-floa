@@ -3,6 +3,9 @@ on:
   workflow_dispatch:
   push:
     branches: [ main, ric-pet-ui-pro-max ]
+concurrency:
+  group: android-build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
