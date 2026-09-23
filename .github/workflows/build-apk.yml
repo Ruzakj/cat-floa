@@ -30,6 +30,8 @@ jobs:
           name: RIC-Pet-lint-report
           path: app/build/reports/lint-results-debug.*
           if-no-files-found: ignore
+      - name: Unit test regression gate
+        run: gradle :app:testDebugUnitTest --stacktrace
       - name: Build debug APK
         run: gradle :app:assembleDebug --stacktrace
       - name: Verify APK archive integrity
