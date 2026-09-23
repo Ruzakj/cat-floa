@@ -1,15 +1,17 @@
 package com.ric.pet;
 
+import android.os.SystemClock;
+
 /** Lightweight virtual-pet needs model. Values are always clamped to 0..100. */
 public final class PetNeeds {
     private int hunger = 28;
     private int energy = 78;
     private int mood = 72;
     private int affection = 55;
-    private long lastTick = System.currentTimeMillis();
+    private long lastTick = SystemClock.elapsedRealtime();
 
     public void tick() {
-        long now = System.currentTimeMillis();
+        long now = SystemClock.elapsedRealtime();
         long minutes = Math.max(0, (now - lastTick) / 60_000L);
         if (minutes == 0) return;
         hunger = clamp(hunger + (int)Math.min(20, minutes / 2 + 1));
