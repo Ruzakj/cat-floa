@@ -8,12 +8,13 @@ public final class PetPreferences {
     private PetPreferences(){}
     private static SharedPreferences p(Context c){return c.getSharedPreferences(FILE,Context.MODE_PRIVATE);}
     private static int clamp(int v,int min,int max){return Math.max(min,Math.min(max,v));}
+    private static String normalizeCat(String v){return "YUKI".equals(v)||"REN".equals(v)||"TORA".equals(v)||"MOMO".equals(v)?v:"YUKI";}
     public static int size(Context c){return clamp(p(c).getInt("size",180),96,320);} public static void size(Context c,int v){p(c).edit().putInt("size",clamp(v,96,320)).apply();}
     public static int speed(Context c){return clamp(p(c).getInt("speed",100),50,200);} public static void speed(Context c,int v){p(c).edit().putInt("speed",clamp(v,50,200)).apply();}
     public static boolean autoStart(Context c){return p(c).getBoolean("auto_start",false);} public static void autoStart(Context c,boolean v){p(c).edit().putBoolean("auto_start",v).apply();}
-    public static String cat(Context c){String v=p(c).getString("cat","YUKI"); if("MOCHI".equals(v)||"MIKAN".equals(v)||"KURO".equals(v)||"AOI".equals(v))return "YUKI"; return v;}
-    public static void cat(Context c,String v){p(c).edit().putString("cat",v).apply();}
-    private static String soundKey(String cat){return "tap_sound_"+(cat==null?"YUKI":cat);}
+    public static String cat(Context c){return normalizeCat(p(c).getString("cat","YUKI"));}
+    public static void cat(Context c,String v){p(c).edit().putString("cat",normalizeCat(v)).apply();}
+    private static String soundKey(String cat){return "tap_sound_"+normalizeCat(cat);}
     public static String customTapSound(Context c,String cat){return p(c).getString(soundKey(cat),"");}
     public static void customTapSound(Context c,String cat,String uri){p(c).edit().putString(soundKey(cat),uri==null?"":uri).apply();}
     public static void clearCustomTapSound(Context c,String cat){p(c).edit().remove(soundKey(cat)).apply();}
