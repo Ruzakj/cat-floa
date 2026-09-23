@@ -44,6 +44,7 @@ public final class CatSoundEngine {
             if(m==null)return;
             m.setVolume(1f,1f);
             m.setOnCompletionListener(x->{try{x.release();}catch(Exception ignored){}});
+            m.setOnErrorListener((x,w,e)->{try{x.release();}catch(Exception ignored){}return true;});
             m.start();
         }catch(Exception ignored){}
     }
