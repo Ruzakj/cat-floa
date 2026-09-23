@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches: [ main, ric-pet-ui-pro-max ]
+permissions:
+  contents: read
 concurrency:
   group: android-build-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
