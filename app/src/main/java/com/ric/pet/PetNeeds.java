@@ -18,7 +18,7 @@ public final class PetNeeds {
         energy = clamp(energy - (int)Math.min(16, minutes / 3 + 1));
         mood = clamp(mood - (int)Math.min(10, minutes / 6));
         affection = clamp(affection - (int)Math.min(8, minutes / 10));
-        lastTick = now;
+        lastTick += minutes * 60_000L;
     }
 
     public void move(boolean fast) { energy = clamp(energy - (fast ? 4 : 2)); hunger = clamp(hunger + 1); }
