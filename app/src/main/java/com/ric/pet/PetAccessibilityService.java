@@ -18,8 +18,8 @@ public class PetAccessibilityService extends AccessibilityService {
         CharSequence sourcePackage=e.getPackageName();
         if(sourcePackage!=null&&getPackageName().contentEquals(sourcePackage))return;
         long now=android.os.SystemClock.uptimeMillis(); int type=e.getEventType();
-        if(type==AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED){ if(now-lastTyping>TYPING_DEBOUNCE_MS){ lastTyping=now; send(ACTION_TYPING); } }
-        else if(type==AccessibilityEvent.TYPE_VIEW_SCROLLED){ if(now-lastScroll>SCROLL_DEBOUNCE_MS){ lastScroll=now; send(ACTION_SCROLL); } }
+        if(type==AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED){ if(lastTyping==0L||now-lastTyping>=TYPING_DEBOUNCE_MS){ lastTyping=now; send(ACTION_TYPING); } }
+        else if(type==AccessibilityEvent.TYPE_VIEW_SCROLLED){ if(lastScroll==0L||now-lastScroll>=SCROLL_DEBOUNCE_MS){ lastScroll=now; send(ACTION_SCROLL); } }
     }
     private void send(String action){ Intent i=new Intent(action); i.setPackage(getPackageName()); sendBroadcast(i); }
     @Override public void onInterrupt(){}
