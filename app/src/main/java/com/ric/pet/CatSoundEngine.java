@@ -6,6 +6,7 @@ import android.net.Uri;
 
 public final class CatSoundEngine {
     private final Context app;
+    private MediaPlayer active;
     public CatSoundEngine(Context c){ app=c.getApplicationContext(); }
 
     /** Tap SFX: custom user-picked audio wins; bundled character sound is fallback. */
@@ -28,26 +29,30 @@ public final class CatSoundEngine {
         else play(R.raw.real_catt_meong);
     }
 
+    private void releaseActive(){
+        MediaPlayer m=active; active=null;
+        if(m!=null)try{m.stop();}catch(Exception ignored){}finally{try{m.release();}catch(Exception ignored){}}
+    }
+    private void track(MediaPlayer m){
+        releaseActive(); active=m;
+        m.setVolume(1f,1f);
+        m.setOnCompletionListener(x->{if(active==x)active=null;try{x.release();}catch(Exception ignored){}});
+        m.setOnErrorListener((x,w,e)->{if(active==x)active=null;try{x.release();}catch(Exception ignored){}return true;});
+    }
     private boolean play(Uri uri){
         MediaPlayer m=null;
         try{
             m=MediaPlayer.create(app,uri);
             if(m==null)return false;
-            m.setVolume(1f,1f);
-            m.setOnCompletionListener(x->{try{x.release();}catch(Exception ignored){}});
-            m.setOnErrorListener((x,w,e)->{try{x.release();}catch(Exception ignored){}return true;});
-            m.start();return true;
-        }catch(Exception ignored){if(m!=null)try{m.release();}catch(Exception releaseIgnored){}return false;}
+            track(m); m.start(); return true;
+        }catch(Exception ignored){if(m!=null){if(active==m)active=null;try{m.release();}catch(Exception releaseIgnored){}}return false;}
     }
     private void play(int res){
         MediaPlayer m=null;
         try{
             m=MediaPlayer.create(app,res);
             if(m==null)return;
-            m.setVolume(1f,1f);
-            m.setOnCompletionListener(x->{try{x.release();}catch(Exception ignored){}});
-            m.setOnErrorListener((x,w,e)->{try{x.release();}catch(Exception ignored){}return true;});
-            m.start();
-        }catch(Exception ignored){if(m!=null)try{m.release();}catch(Exception releaseIgnored){}}
+            track(m); m.start();
+        }catch(Exception ignored){if(m!=null){if(active==m)active=null;try{m.release();}catch(Exception releaseIgnored){}}}
     }
 }
