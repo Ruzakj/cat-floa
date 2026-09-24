@@ -14,7 +14,10 @@ public class PetAccessibilityService extends AccessibilityService {
     private static final long SCROLL_DEBOUNCE_MS=300L;
     private long lastTyping,lastScroll;
     @Override public void onAccessibilityEvent(AccessibilityEvent e){
-        if(e==null)return; long now=android.os.SystemClock.uptimeMillis(); int type=e.getEventType();
+        if(e==null)return;
+        CharSequence sourcePackage=e.getPackageName();
+        if(sourcePackage!=null&&getPackageName().contentEquals(sourcePackage))return;
+        long now=android.os.SystemClock.uptimeMillis(); int type=e.getEventType();
         if(type==AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED){ if(now-lastTyping>TYPING_DEBOUNCE_MS){ lastTyping=now; send(ACTION_TYPING); } }
         else if(type==AccessibilityEvent.TYPE_VIEW_SCROLLED){ if(now-lastScroll>SCROLL_DEBOUNCE_MS){ lastScroll=now; send(ACTION_SCROLL); } }
     }
