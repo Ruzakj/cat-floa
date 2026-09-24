@@ -29,23 +29,25 @@ public final class CatSoundEngine {
     }
 
     private boolean play(Uri uri){
+        MediaPlayer m=null;
         try{
-            MediaPlayer m=MediaPlayer.create(app,uri);
+            m=MediaPlayer.create(app,uri);
             if(m==null)return false;
             m.setVolume(1f,1f);
             m.setOnCompletionListener(x->{try{x.release();}catch(Exception ignored){}});
             m.setOnErrorListener((x,w,e)->{try{x.release();}catch(Exception ignored){}return true;});
             m.start();return true;
-        }catch(Exception ignored){return false;}
+        }catch(Exception ignored){if(m!=null)try{m.release();}catch(Exception releaseIgnored){}return false;}
     }
     private void play(int res){
+        MediaPlayer m=null;
         try{
-            MediaPlayer m=MediaPlayer.create(app,res);
+            m=MediaPlayer.create(app,res);
             if(m==null)return;
             m.setVolume(1f,1f);
             m.setOnCompletionListener(x->{try{x.release();}catch(Exception ignored){}});
             m.setOnErrorListener((x,w,e)->{try{x.release();}catch(Exception ignored){}return true;});
             m.start();
-        }catch(Exception ignored){}
+        }catch(Exception ignored){if(m!=null)try{m.release();}catch(Exception releaseIgnored){}}
     }
 }
