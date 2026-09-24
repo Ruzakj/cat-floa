@@ -10,11 +10,13 @@ import android.view.accessibility.AccessibilityEvent;
 public class PetAccessibilityService extends AccessibilityService {
     public static final String ACTION_TYPING="com.ric.pet.USER_TYPING";
     public static final String ACTION_SCROLL="com.ric.pet.USER_SCROLL";
+    private static final long TYPING_DEBOUNCE_MS=250L;
+    private static final long SCROLL_DEBOUNCE_MS=300L;
     private long lastTyping,lastScroll;
     @Override public void onAccessibilityEvent(AccessibilityEvent e){
         if(e==null)return; long now=android.os.SystemClock.uptimeMillis(); int type=e.getEventType();
-        if(type==AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED){ if(now-lastTyping>120){ lastTyping=now; send(ACTION_TYPING); } }
-        else if(type==AccessibilityEvent.TYPE_VIEW_SCROLLED){ if(now-lastScroll>100){ lastScroll=now; send(ACTION_SCROLL); } }
+        if(type==AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED){ if(now-lastTyping>TYPING_DEBOUNCE_MS){ lastTyping=now; send(ACTION_TYPING); } }
+        else if(type==AccessibilityEvent.TYPE_VIEW_SCROLLED){ if(now-lastScroll>SCROLL_DEBOUNCE_MS){ lastScroll=now; send(ACTION_SCROLL); } }
     }
     private void send(String action){ Intent i=new Intent(action); i.setPackage(getPackageName()); sendBroadcast(i); }
     @Override public void onInterrupt(){}
