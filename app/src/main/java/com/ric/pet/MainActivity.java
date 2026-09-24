@@ -185,6 +185,7 @@ public class MainActivity extends Activity {
         TextView t = text(s, 13, MUTED, Gravity.START);
         t.setTypeface(Typeface.DEFAULT_BOLD);
         t.setPadding(0, dp(16), 0, dp(8));
+        if (Build.VERSION.SDK_INT >= 28) t.setAccessibilityHeading(true);
         return t;
     }
 
